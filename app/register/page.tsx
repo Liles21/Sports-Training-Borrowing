@@ -42,10 +42,21 @@ export default function RegisterPage() {
         <h1>Create Account</h1>
         <p className="muted auth-subtitle">Join the gym equipment borrowing system</p>
 
+        <div className="auth-highlights">
+          <span>Borrow history</span>
+          <span>Notifications</span>
+          <span>Mobile friendly</span>
+        </div>
+
         <form onSubmit={handleSubmit} className="form-grid">
           <label>
             Full Name
-            <input placeholder="Enter your full name" value={name} onChange={(event) => setName(event.target.value)} required />
+            <input
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+            />
           </label>
 
           <label>

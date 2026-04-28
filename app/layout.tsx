@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sport Gym Equipment Borrowing",
-  description: "Equipment and tools borrowing system for sports centers",
+  title: "Sport Gym Equipment | Borrowing System",
+  description: "A borrowing and equipment management system for sports centers.",
 };
 
 export default function RootLayout({

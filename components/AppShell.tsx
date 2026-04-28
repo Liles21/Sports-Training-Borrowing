@@ -268,7 +268,11 @@ export function AppShell({
                 href={link.href}
                 className={pathname === link.href ? "nav-link active" : "nav-link"}
               >
-                {link.icon && <link.icon />}
+                {link.icon && (
+                  <span className="nav-link-icon">
+                    <link.icon />
+                  </span>
+                )}
                 {link.label}
               </Link>
             ))}

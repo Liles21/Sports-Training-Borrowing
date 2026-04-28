@@ -41,6 +41,12 @@ export default function LoginPage() {
         <h1>Welcome Back</h1>
         <p className="muted auth-subtitle">Sign in to access the gym equipment system</p>
 
+        <div className="auth-highlights">
+          <span>Fast sign in</span>
+          <span>Borrower dashboard</span>
+          <span>Admin tools</span>
+        </div>
+
         <form onSubmit={handleSubmit} className="form-grid">
           <label>
             Email
