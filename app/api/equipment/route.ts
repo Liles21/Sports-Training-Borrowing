@@ -29,7 +29,7 @@ export async function GET(request: Request): Promise<Response> {
     supabase
       .from("borrow_requests")
       .select("*")
-      .eq("status", "approved")
+      .in("status", ["approved", "returning"])
       .order("created_at", { ascending: false }),
   ]);
 
@@ -102,7 +102,7 @@ export async function POST(request: Request): Promise<Response> {
     supabase
       .from("borrow_requests")
       .select("*")
-      .eq("status", "approved")
+      .in("status", ["approved", "returning"])
       .order("created_at", { ascending: false }),
   ]);
 

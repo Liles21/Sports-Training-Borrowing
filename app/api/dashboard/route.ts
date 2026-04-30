@@ -41,7 +41,7 @@ export async function GET(request: Request): Promise<Response> {
   const equipmentMap = new Map(equipment.map((item) => [item.id, item] as const));
 
   if (auth.user.role === "admin") {
-    const totalEquipment = equipment.reduce((sum, item) => sum + item.quantity, 0);
+    const totalEquipment = equipment.length;
     const borrowedItems = borrowRequests
       .filter((entry) => entry.status === "approved" || entry.status === "returning")
       .reduce((sum, entry) => sum + entry.quantity, 0);

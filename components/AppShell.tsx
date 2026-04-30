@@ -23,6 +23,7 @@ import {
   HiOutlineIdentification,
   HiOutlineBookmarkSquare,
   HiOutlineTrash,
+  HiOutlineBars3,
 } from "react-icons/hi2";
 
 type NavLink = {
@@ -65,6 +66,7 @@ export function AppShell({
   const [showMenu, setShowMenu] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -171,9 +173,19 @@ export function AppShell({
   }
 
   return (
-    <div className="app-layout">
+    <div className={isSidebarOpen ? "app-layout sidebar-open" : "app-layout"}>
       <header className="topbar">
-        <Link href={role === "admin" ? "/admin/dashboard" : "/dashboard"} className="topbar-brand">
+        <div className="topbar-left">
+          <button
+            type="button"
+            className="hamburger-btn"
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            {isSidebarOpen ? <HiOutlineXMark /> : <HiOutlineBars3 />}
+          </button>
+
+          <Link href={role === "admin" ? "/admin/dashboard" : "/dashboard"} className="topbar-brand">
           <span className="brand-mark">
             <HiOutlineSparkles />
           </span>
@@ -182,6 +194,7 @@ export function AppShell({
             <span className="brand-subtitle">Borrowing System</span>
           </span>
         </Link>
+        </div>
 
         <div className="topbar-actions">
           <button
@@ -281,13 +294,14 @@ export function AppShell({
       </header>
 
       <div className="app-body">
-        <aside className="app-sidebar">
+        <aside className={isSidebarOpen ? "app-sidebar open" : "app-sidebar"}>
           <nav className="sidebar-links">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={pathname === link.href ? "nav-link active" : "nav-link"}
+                onClick={() => setIsSidebarOpen(false)}
               >
                 {link.icon && (
                   <span className="nav-link-icon">
@@ -303,6 +317,10 @@ export function AppShell({
         <main className="content-scroll">
           <div className="content-panel">{children}</div>
         </main>
+        
+        {isSidebarOpen && (
+          <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+        )}
       </div>
 
       {showProfile && (

@@ -126,7 +126,7 @@ export async function POST(request: Request): Promise<Response> {
       .from("borrow_requests")
       .select("*")
       .eq("equipment_id", equipmentId)
-      .in("status", ["pending", "approved"]),
+      .in("status", ["pending", "approved", "returning"]),
   ]);
 
   if (equipmentResponse.error) {
@@ -194,11 +194,11 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError(insertNotifications.error.message || "Unable to create notifications.", 500);
   }
 
-  const approvedResponse = await supabase
-    .from("borrow_requests")
-    .select("*")
-    .eq("equipment_id", equipmentId)
-    .eq("status", "approved");
+    const approvedResponse = await supabase
+      .from("borrow_requests")
+      .select("*")
+      .eq("equipment_id", equipmentId)
+      .in("status", ["approved", "returning"]);
 
   if (approvedResponse.error) {
     return jsonError(approvedResponse.error.message || "Unable to recalculate availability.", 500);
