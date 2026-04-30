@@ -1586,6 +1586,12 @@ p {
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px;
+  }
+
   &:hover {
     transform: translateX(4px);
     box-shadow: var(--shadow-md);
@@ -1597,6 +1603,11 @@ p {
     height: 120px;
     object-fit: cover;
     border-radius: var(--radius-md);
+
+    @media (max-width: 600px) {
+      width: 100%;
+      height: 160px;
+    }
   }
 
   &.pending { border-left: 4px solid #f59e0b; }
@@ -1629,7 +1640,7 @@ p {
 
 .request-dates {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: var(--space-lg);
 
   p {
@@ -1729,7 +1740,7 @@ p {
 
 .admin-request-columns {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 18px;
 
   p {
@@ -1737,8 +1748,9 @@ p {
   }
 
   strong {
-    font-size: 2rem;
+    font-size: 1.25rem;
     line-height: 1.2;
+    word-break: break-word;
   }
 }
 
@@ -1773,7 +1785,7 @@ p {
 
   h1 {
     margin: 0;
-    font-size: 2.35rem;
+    font-size: min(2.35rem, 8vw);
   }
 }
 
@@ -2002,7 +2014,7 @@ p {
 .history-summary-grid {
   display: grid;
   gap: var(--space-lg);
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 .history-summary-card {
@@ -2011,17 +2023,22 @@ p {
   border-radius: 18px;
   box-shadow: var(--shadow-sm);
   padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   h4 {
     margin: 0;
-    font-size: 1.8rem;
-    font-weight: 500;
-    color: #334155;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   strong {
     display: block;
-    margin-top: var(--space-sm);
+    margin-top: 8px;
     font-size: 2rem;
     line-height: 1;
   }
@@ -2078,21 +2095,22 @@ p {
 }
 
 .admin-history-summary-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 .admin-history-summary-grid .history-summary-card {
   border-radius: 18px;
-  padding: 20px 28px;
+  padding: 24px;
+  min-height: 120px;
 
   h4 {
-    font-size: 1.8rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
   strong {
-    margin-top: 8px;
-    font-size: 2.25rem;
+    margin-top: 10px;
+    font-size: 2.5rem;
   }
 }
 

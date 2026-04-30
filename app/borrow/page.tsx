@@ -27,6 +27,7 @@ type BorrowRow = {
 export default function BorrowRequestsPage() {
   const [rows, setRows] = useState<BorrowRow[]>([]);
   const [filter, setFilter] = useState("all");
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   async function load() {
     try {
@@ -44,6 +45,7 @@ export default function BorrowRequestsPage() {
   async function handleReturn(id: string) {
     if (!confirm("Are you sure you want to return this equipment?")) return;
 
+    setLoadingId(id);
     try {
       await apiFetch(`/api/borrow-requests/${id}`, {
         method: "PATCH",
@@ -52,6 +54,8 @@ export default function BorrowRequestsPage() {
       await load();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Return failed.");
+    } finally {
+      setLoadingId(null);
     }
   }
 
@@ -157,8 +161,9 @@ export default function BorrowRequestsPage() {
                         type="button"
                         className="btn primary"
                         onClick={() => handleReturn(entry.id)}
+                        disabled={loadingId === entry.id}
                       >
-                        Return Equipment
+                        {loadingId === entry.id ? "Processing..." : "Return Equipment"}
                       </button>
                     </div>
                   )}

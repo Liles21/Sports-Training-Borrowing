@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/client/api";
 import { formatDate, statusClass } from "@/lib/client/format";
-import { HiOutlineArrowDownTray } from "react-icons/hi2";
+import { HiOutlineArrowDownTray, HiOutlineTrash } from "react-icons/hi2";
 
 type HistoryRow = {
   id: string;
@@ -48,6 +48,20 @@ export default function AdminHistoryPage() {
 
   function exportCsv() {
     window.open("/api/history?format=csv", "_blank");
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this record permanentally? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await apiFetch(`/api/borrow-requests/${id}`, { method: "DELETE" });
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      setSummary((prev) => ({ ...prev, total: prev.total - 1 }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Delete failed.");
+    }
   }
 
   return (
@@ -99,6 +113,7 @@ export default function AdminHistoryPage() {
                     <th>Quantity</th>
                     <th>Period</th>
                     <th>Status</th>
+                    <th style={{ width: "80px" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -118,6 +133,16 @@ export default function AdminHistoryPage() {
                       <td>{entry.quantity}</td>
                       <td>{formatDate(entry.borrowDate)} - {formatDate(entry.returnDate)}</td>
                       <td><span className={statusClass(entry.status)}>{entry.status}</span></td>
+                      <td>
+                        <button
+                          type="button"
+                          className="icon-btn danger"
+                          onClick={() => handleDelete(entry.id)}
+                          title="Delete record"
+                        >
+                          <HiOutlineTrash />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

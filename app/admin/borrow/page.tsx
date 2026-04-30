@@ -37,9 +37,9 @@ export default function AdminBorrowPage() {
   const [checklist, setChecklist] = useState({
     parts: false,
     damage: false,
-    clean: false,
     functional: false,
   });
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   async function load() {
     const data = await apiFetch<{ requests: BorrowRow[] }>("/api/borrow-requests");
@@ -83,6 +83,7 @@ export default function AdminBorrowPage() {
 
   async function patchStatus(id: string, action: string, condition?: string) {
     setError(null);
+    setLoadingId(id);
 
     try {
       const data = await apiFetch<{ requests: BorrowRow[] }>(`/api/borrow-requests/${id}`, {
@@ -92,6 +93,8 @@ export default function AdminBorrowPage() {
       setRows(data.requests);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Action failed.");
+    } finally {
+      setLoadingId(null);
     }
   }
 
@@ -219,39 +222,43 @@ export default function AdminBorrowPage() {
                           type="button"
                           className="btn success"
                           onClick={() => patchStatus(entry.id, "approve")}
+                          disabled={loadingId === entry.id}
                         >
                           <HiOutlineCheckCircle />
-                          Approve
+                          {loadingId === entry.id ? "..." : "Approve"}
                         </button>
                         <button
                           type="button"
                           className="btn danger"
                           onClick={() => patchStatus(entry.id, "reject")}
+                          disabled={loadingId === entry.id}
                         >
                           <HiOutlineXCircle />
-                          Reject
+                          {loadingId === entry.id ? "..." : "Reject"}
                         </button>
                       </>
                     )}
                     {entry.status === "approved" && (
-                      <button
-                        type="button"
-                        className="btn primary"
-                        onClick={() => patchStatus(entry.id, "return")}
-                      >
-                        <HiOutlineArrowPath />
-                        Mark as Returned
-                      </button>
+                        <button
+                          type="button"
+                          className="btn primary"
+                          onClick={() => patchStatus(entry.id, "return")}
+                          disabled={loadingId === entry.id}
+                        >
+                          <HiOutlineArrowPath />
+                          {loadingId === entry.id ? "Processing..." : "Mark as Returned"}
+                        </button>
                     )}
                     {entry.status === "returning" && (
-                      <button
-                        type="button"
-                        className="btn success"
-                        onClick={() => acceptReturn(entry.id)}
-                      >
-                        <HiOutlineCheckCircle />
-                        Accept Return & Check Condition
-                      </button>
+                        <button
+                          type="button"
+                          className="btn success"
+                          onClick={() => acceptReturn(entry.id)}
+                          disabled={loadingId === entry.id}
+                        >
+                          <HiOutlineCheckCircle />
+                          {loadingId === entry.id ? "Processing..." : "Accept Return & Check Condition"}
+                        </button>
                     )}
                   </div>
                 </div>
@@ -330,8 +337,9 @@ export default function AdminBorrowPage() {
                     type="button"
                     className="btn success"
                     onClick={handleConfirmReturn}
+                    disabled={loadingId === checkingId}
                   >
-                    Confirm & Accept Return
+                    {loadingId === checkingId ? "Processing..." : "Confirm & Accept Return"}
                   </button>
                 </div>
               </div>

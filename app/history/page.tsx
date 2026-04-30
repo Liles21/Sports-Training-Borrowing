@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/client/api";
 import { formatDate, statusClass } from "@/lib/client/format";
-import { HiOutlineCalendarDays } from "react-icons/hi2";
+import { HiOutlineCalendarDays, HiOutlineTrash } from "react-icons/hi2";
 
 type HistoryRow = {
   id: string;
@@ -36,6 +36,20 @@ export default function BorrowerHistoryPage() {
         setRows([]);
       });
   }, []);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to remove this record from your history?")) {
+      return;
+    }
+
+    try {
+      await apiFetch(`/api/borrow-requests/${id}`, { method: "DELETE" });
+      setRows((prev) => prev.filter((r) => r.id !== id));
+      setSummary((prev) => ({ ...prev, total: prev.total - 1 }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Delete failed.");
+    }
+  }
 
   return (
     <ProtectedPage role="borrower">
@@ -79,6 +93,18 @@ export default function BorrowerHistoryPage() {
                         </div>
                         <span className={statusClass(entry.status)}>{entry.status}</span>
                       </div>
+
+                      {["returned", "rejected", "pending"].includes(entry.status) && (
+                        <button
+                          type="button"
+                          className="icon-btn danger"
+                          onClick={() => handleDelete(entry.id)}
+                          style={{ position: "absolute", top: "16px", right: "16px" }}
+                          title="Remove from history"
+                        >
+                          <HiOutlineTrash />
+                        </button>
+                      )}
 
                       <div className="history-row-dates">
                         <p>
