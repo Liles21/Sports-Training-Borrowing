@@ -50,7 +50,7 @@
   --radius-xl: 32px;
   
   /* Typography */
-  --font-family: var(--font-geist-sans), Arial, sans-serif;
+  --font-family: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), "Fira Code", monospace;
   
   /* Transitions */
@@ -64,8 +64,10 @@ body {
   font-family: var(--font-family);
   font-style: normal;
   font-weight: 400;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   color: var(--ink);
 }
 
@@ -352,7 +354,10 @@ p {
 
 .auth-card h1 {
   margin-bottom: 10px;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 600;
   background: linear-gradient(135deg, #4f46e5, #a21caf);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -361,7 +366,8 @@ p {
 
 .auth-subtitle {
   margin-bottom: 30px;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  line-height: 1.7;
 }
 
 .auth-highlights {
@@ -462,10 +468,12 @@ p {
     display: block;
     color: var(--ink);
     margin-bottom: 2px;
+    font-size: 0.98rem;
   }
 
   span {
     color: var(--ink-light);
+    line-height: 1.55;
   }
 }
 
