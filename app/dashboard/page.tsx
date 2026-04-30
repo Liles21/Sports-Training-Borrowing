@@ -24,7 +24,7 @@ type DashboardData = {
     equipmentImage: string;
     quantity: number;
     returnDate: string;
-    status: "approved";
+    status: "approved" | "returning";
     overdue: boolean;
   }>;
   recentRequests: Array<{
@@ -33,7 +33,7 @@ type DashboardData = {
     quantity: number;
     borrowDate: string;
     returnDate: string;
-    status: "pending" | "approved" | "rejected" | "returned";
+    status: "pending" | "approved" | "returning" | "rejected" | "returned";
     createdAt: string;
   }>;
 };

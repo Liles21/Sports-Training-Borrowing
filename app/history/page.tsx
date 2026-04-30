@@ -16,7 +16,7 @@ type HistoryRow = {
   quantity: number;
   borrowDate: string;
   returnDate: string;
-  status: "pending" | "approved" | "rejected" | "returned";
+  status: "pending" | "approved" | "rejected" | "returning" | "returned";
   overdue: boolean;
 };
 

@@ -23,14 +23,23 @@ type BorrowRow = {
   borrowDate: string;
   returnDate: string;
   createdAt: string;
-  status: "pending" | "approved" | "rejected" | "returned";
+  status: "pending" | "approved" | "rejected" | "returning" | "returned";
   overdue: boolean;
+  returnCondition?: string;
 };
 
 export default function AdminBorrowPage() {
   const [rows, setRows] = useState<BorrowRow[]>([]);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const [checkingId, setCheckingId] = useState<string | null>(null);
+  const [condition, setCondition] = useState("Good condition");
+  const [checklist, setChecklist] = useState({
+    parts: false,
+    damage: false,
+    clean: false,
+    functional: false,
+  });
 
   async function load() {
     const data = await apiFetch<{ requests: BorrowRow[] }>("/api/borrow-requests");
@@ -72,19 +81,48 @@ export default function AdminBorrowPage() {
     [rows],
   );
 
-  async function patchStatus(id: string, action: "approve" | "reject" | "return") {
+  async function patchStatus(id: string, action: string, condition?: string) {
     setError(null);
 
     try {
       const data = await apiFetch<{ requests: BorrowRow[] }>(`/api/borrow-requests/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, condition }),
       });
       setRows(data.requests);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Action failed.");
     }
   }
+
+  async function acceptReturn(id: string) {
+    setCheckingId(id);
+    setCondition("Good condition");
+    setChecklist({
+      parts: false,
+      damage: false,
+      clean: false,
+      functional: false,
+    });
+  }
+
+  async function handleConfirmReturn() {
+    if (!checkingId) return;
+
+    const checks = [];
+    if (checklist.parts) checks.push("All parts present");
+    if (checklist.damage) checks.push("No visible damage");
+    if (checklist.clean) checks.push("Clean");
+    if (checklist.functional) checks.push("Fully functional");
+
+    const finalCondition = checks.length > 0
+      ? `[${checks.join(", ")}] ${condition}`
+      : condition;
+
+    await patchStatus(checkingId, "accept_return", finalCondition);
+    setCheckingId(null);
+  }
+
 
   return (
     <ProtectedPage role="admin">
@@ -102,6 +140,7 @@ export default function AdminBorrowPage() {
                 <option value="all">All Requests</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
+                <option value="returning">Returning</option>
                 <option value="returned">Returned</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -162,6 +201,13 @@ export default function AdminBorrowPage() {
                     </div>
                   </div>
 
+                  {entry.returnCondition && (
+                    <div className="admin-return-condition">
+                      <p className="muted">Return Condition:</p>
+                      <p className="condition-text"><strong>{entry.returnCondition}</strong></p>
+                    </div>
+                  )}
+
                   <p className="request-created muted">
                     Requested on: {new Date(entry.createdAt ?? entry.borrowDate).toLocaleString()}
                   </p>
@@ -197,6 +243,16 @@ export default function AdminBorrowPage() {
                         Mark as Returned
                       </button>
                     )}
+                    {entry.status === "returning" && (
+                      <button
+                        type="button"
+                        className="btn success"
+                        onClick={() => acceptReturn(entry.id)}
+                      >
+                        <HiOutlineCheckCircle />
+                        Accept Return & Check Condition
+                      </button>
+                    )}
                   </div>
                 </div>
               </article>
@@ -205,6 +261,83 @@ export default function AdminBorrowPage() {
             {filtered.length === 0 && <p className="muted">No requests found.</p>}
           </div>
         </div>
+
+        {checkingId && (
+          <div className="modal-overlay" onClick={() => setCheckingId(null)}>
+            <section className="modal-card equipment-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-head">
+                <h3>Accept Return & Check Condition</h3>
+              </div>
+              <div className="form-grid admin-equipment-form">
+                <p>Please check the equipment and specify its current condition.</p>
+
+                <div className="return-checklist" style={{ display: "grid", gap: "10px", margin: "10px 0" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: "normal" }}>
+                    <input
+                      type="checkbox"
+                      style={{ width: "auto" }}
+                      checked={checklist.parts}
+                      onChange={(e) => setChecklist({ ...checklist, parts: e.target.checked })}
+                    />
+                    All parts/accessories are present
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: "normal" }}>
+                    <input
+                      type="checkbox"
+                      style={{ width: "auto" }}
+                      checked={checklist.damage}
+                      onChange={(e) => setChecklist({ ...checklist, damage: e.target.checked })}
+                    />
+                    No visible damage (cracks, dents, etc.)
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: "normal" }}>
+                    <input
+                      type="checkbox"
+                      style={{ width: "auto" }}
+                      checked={checklist.clean}
+                      onChange={(e) => setChecklist({ ...checklist, clean: e.target.checked })}
+                    />
+                    Equipment is clean
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontWeight: "normal" }}>
+                    <input
+                      type="checkbox"
+                      style={{ width: "auto" }}
+                      checked={checklist.functional}
+                      onChange={(e) => setChecklist({ ...checklist, functional: e.target.checked })}
+                    />
+                    Equipment is functional/working
+                  </label>
+                </div>
+
+                <label>
+                  Additional Notes
+                  <textarea
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                    placeholder="e.g. Good condition, Slightly scratched, Needs repair..."
+                  />
+                </label>
+                <div className="admin-equipment-actions">
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    onClick={() => setCheckingId(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn success"
+                    onClick={handleConfirmReturn}
+                  >
+                    Confirm & Accept Return
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
       </AppShell>
     </ProtectedPage>
   );

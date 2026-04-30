@@ -43,7 +43,7 @@ export async function GET(request: Request): Promise<Response> {
   if (auth.user.role === "admin") {
     const totalEquipment = equipment.reduce((sum, item) => sum + item.quantity, 0);
     const borrowedItems = borrowRequests
-      .filter((entry) => entry.status === "approved")
+      .filter((entry) => entry.status === "approved" || entry.status === "returning")
       .reduce((sum, entry) => sum + entry.quantity, 0);
     const availableItems = equipment.reduce(
       (sum, item) => sum + computeAvailableForEquipment(item, borrowRequests),
@@ -92,13 +92,13 @@ export async function GET(request: Request): Promise<Response> {
 
   const own = borrowRequests.filter((entry) => entry.userId === auth.user.id);
   const pending = own.filter((entry) => entry.status === "pending").length;
-  const active = own.filter((entry) => entry.status === "approved").length;
+  const active = own.filter((entry) => entry.status === "approved" || entry.status === "returning").length;
   const returned = own.filter((entry) => entry.status === "returned").length;
   const rejected = own.filter((entry) => entry.status === "rejected").length;
   const overdue = own.filter((entry) => isOverdue(entry));
 
   const activeBorrows = own
-    .filter((entry) => entry.status === "approved")
+    .filter((entry) => entry.status === "approved" || entry.status === "returning")
     .map((entry) => {
       const item = equipmentMap.get(entry.equipmentId);
       return {

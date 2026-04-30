@@ -22,6 +22,7 @@ export type BorrowRequestRow = {
   created_at: string;
   approved_at: string | null;
   returned_at: string | null;
+  return_condition: string | null;
 };
 
 export type NotificationRow = {
@@ -58,6 +59,7 @@ export function mapBorrowRequestRow(row: BorrowRequestRow): BorrowRequest {
     createdAt: row.created_at,
     approvedAt: row.approved_at ?? undefined,
     returnedAt: row.returned_at ?? undefined,
+    returnCondition: row.return_condition ?? undefined,
   };
 }
 
@@ -85,7 +87,7 @@ export function computeAvailableForEquipment(
   requests: BorrowRequest[],
 ): number {
   const approvedCount = requests
-    .filter((req) => req.equipmentId === item.id && req.status === "approved")
+    .filter((req) => req.equipmentId === item.id && (req.status === "approved" || req.status === "returning"))
     .reduce((sum, req) => sum + req.quantity, 0);
 
   return Math.max(item.quantity - approvedCount, 0);
@@ -99,7 +101,7 @@ export function computeReservableForEquipment(
     .filter(
       (req) =>
         req.equipmentId === item.id &&
-        (req.status === "approved" || req.status === "pending"),
+        (req.status === "approved" || req.status === "pending" || req.status === "returning"),
     )
     .reduce((sum, req) => sum + req.quantity, 0);
 

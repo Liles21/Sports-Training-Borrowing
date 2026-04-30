@@ -1,6 +1,6 @@
 export type UserRole = "admin" | "borrower";
 
-export type RequestStatus = "pending" | "approved" | "rejected" | "returned";
+export type RequestStatus = "pending" | "approved" | "rejected" | "returning" | "returned";
 
 export type NotificationType = "info" | "warning" | "success" | "error";
 
@@ -37,6 +37,7 @@ export type BorrowRequest = {
   createdAt: string;
   approvedAt?: string;
   returnedAt?: string;
+  returnCondition?: string;
 };
 
 export type Notification = {

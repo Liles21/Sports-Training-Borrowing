@@ -11,7 +11,8 @@ import { jsonError, jsonSuccess } from "@/lib/server/responses";
 import { getSupabaseServiceClient } from "@/lib/server/supabase";
 
 type UpdateBody = {
-  action?: "approve" | "reject" | "return";
+  action?: "approve" | "reject" | "return" | "accept_return";
+  condition?: string;
 };
 
 export async function PATCH(
@@ -23,16 +24,11 @@ export async function PATCH(
     return auth.response;
   }
 
-  const roleResponse = requireRole(auth.user, ["admin"]);
-  if (roleResponse) {
-    return roleResponse;
-  }
-
   const { id } = await context.params;
   const body = (await request.json()) as UpdateBody;
   const action = body.action;
 
-  if (!action || !["approve", "reject", "return"].includes(action)) {
+  if (!action || !["approve", "reject", "return", "accept_return"].includes(action)) {
     return jsonError("Invalid action.");
   }
 
@@ -52,6 +48,20 @@ export async function PATCH(
   }
 
   const target = mapBorrowRequestRow(requestResponse.data as BorrowRequestRow);
+
+  // Authorization check
+  if (action === "return") {
+    // Borrower can return their own request, Admin can return any
+    if (auth.user.id !== target.userId && auth.user.role !== "admin") {
+      return jsonError("Not authorized to return this equipment.", 403);
+    }
+  } else {
+    // Other actions (approve, reject, accept_return) require admin role
+    const roleResponse = requireRole(auth.user, ["admin"]);
+    if (roleResponse) {
+      return roleResponse;
+    }
+  }
 
   const equipmentResponse = await supabase
     .from("equipment")
@@ -136,14 +146,33 @@ export async function PATCH(
     if (notifyResponse.error) {
       return jsonError(notifyResponse.error.message || "Unable to create notification.", 500);
     }
-  } else {
+  } else if (action === "return") {
     if (target.status !== "approved") {
       return jsonError("Action not allowed for current status.");
     }
 
     const updateResponse = await supabase
       .from("borrow_requests")
-      .update({ status: "returned", returned_at: new Date().toISOString() })
+      .update({ status: "returning" })
+      .eq("id", id);
+
+    if (updateResponse.error) {
+      return jsonError(updateResponse.error.message || "Unable to update borrow request.", 500);
+    }
+
+    // Notify admin? (Optional, but let's just confirm for user)
+  } else if (action === "accept_return") {
+    if (target.status !== "returning") {
+      return jsonError("Action not allowed for current status.");
+    }
+
+    const updateResponse = await supabase
+      .from("borrow_requests")
+      .update({
+        status: "returned",
+        returned_at: new Date().toISOString(),
+        return_condition: body.condition || "Not specified",
+      })
       .eq("id", id);
 
     if (updateResponse.error) {
@@ -152,7 +181,7 @@ export async function PATCH(
 
     const notifyResponse = await supabase.from("notifications").insert({
       user_id: target.userId,
-      message: `Thanks! ${item.name} has been marked as returned.`,
+      message: `Thanks! ${item.name} has been accepted and marked as returned. Condition: ${body.condition || "Good"}`,
       type: "success",
       read: false,
     });

@@ -32,3 +32,28 @@ export async function PATCH(
 
   return jsonSuccess({ message: "Notification updated." });
 }
+
+export async function DELETE(
+  request: Request,
+  context: RouteContext<"/api/notifications/[id]">,
+): Promise<Response> {
+  const auth = await requireAuth(request);
+  if (!auth.ok) {
+    return auth.response;
+  }
+
+  const { id } = await context.params;
+
+  const supabase = getSupabaseServiceClient();
+  const response = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", auth.user.id);
+
+  if (response.error) {
+    return jsonError(response.error.message || "Unable to delete notification.", 500);
+  }
+
+  return jsonSuccess({ message: "Notification deleted." });
+}

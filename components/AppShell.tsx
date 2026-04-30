@@ -22,6 +22,7 @@ import {
   HiOutlineLockClosed,
   HiOutlineIdentification,
   HiOutlineBookmarkSquare,
+  HiOutlineTrash,
 } from "react-icons/hi2";
 
 type NavLink = {
@@ -159,6 +160,16 @@ export function AppShell({
     router.push(role === "admin" ? "/admin/borrow" : "/borrow");
   }
 
+  async function deleteNotification(event: React.MouseEvent, id: string) {
+    event.stopPropagation();
+    try {
+      await apiFetch(`/api/notifications/${id}`, { method: "DELETE" });
+      setNotifications((prev) => prev.filter((entry) => entry.id !== id));
+    } catch {
+      // Ignore failures
+    }
+  }
+
   return (
     <div className="app-layout">
       <header className="topbar">
@@ -227,7 +238,17 @@ export function AppShell({
                     }}
                   >
                     <p>{entry.message}</p>
-                    <small>{new Date(entry.createdAt).toLocaleString()}</small>
+                    <div className="notification-meta">
+                      <small>{new Date(entry.createdAt).toLocaleString()}</small>
+                      <button
+                        type="button"
+                        className="delete-notification"
+                        onClick={(event) => deleteNotification(event, entry.id)}
+                        aria-label="Delete notification"
+                      >
+                        <HiOutlineTrash />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}

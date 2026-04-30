@@ -20,7 +20,7 @@ type BorrowRow = {
   borrowDate: string;
   returnDate: string;
   createdAt?: string;
-  status: "pending" | "approved" | "rejected" | "returned";
+  status: "pending" | "approved" | "rejected" | "returning" | "returned";
   overdue: boolean;
 };
 
@@ -28,11 +28,32 @@ export default function BorrowRequestsPage() {
   const [rows, setRows] = useState<BorrowRow[]>([]);
   const [filter, setFilter] = useState("all");
 
+  async function load() {
+    try {
+      const data = await apiFetch<{ requests: BorrowRow[] }>("/api/borrow-requests");
+      setRows(data.requests);
+    } catch {
+      setRows([]);
+    }
+  }
+
   useEffect(() => {
-    apiFetch<{ requests: BorrowRow[] }>("/api/borrow-requests")
-      .then((data) => setRows(data.requests))
-      .catch(() => setRows([]));
+    load();
   }, []);
+
+  async function handleReturn(id: string) {
+    if (!confirm("Are you sure you want to return this equipment?")) return;
+
+    try {
+      await apiFetch(`/api/borrow-requests/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ action: "return" }),
+      });
+      await load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Return failed.");
+    }
+  }
 
   const filtered = useMemo(
     () => rows.filter((entry) => (filter === "all" ? true : entry.status === filter)),
@@ -43,6 +64,7 @@ export default function BorrowRequestsPage() {
     () => ({
       pending: rows.filter((entry) => entry.status === "pending").length,
       approved: rows.filter((entry) => entry.status === "approved").length,
+      returning: rows.filter((entry) => entry.status === "returning").length,
       returned: rows.filter((entry) => entry.status === "returned").length,
       rejected: rows.filter((entry) => entry.status === "rejected").length,
     }),
@@ -65,6 +87,7 @@ export default function BorrowRequestsPage() {
                 <option value="all">All Requests</option>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
+                <option value="returning">Returning</option>
                 <option value="returned">Returned</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -125,6 +148,25 @@ export default function BorrowRequestsPage() {
                     <div className="request-note">
                       <HiOutlineClock />
                       Waiting for admin approval
+                    </div>
+                  )}
+
+                  {entry.status === "approved" && (
+                    <div className="button-row" style={{ marginTop: "1rem" }}>
+                      <button
+                        type="button"
+                        className="btn primary"
+                        onClick={() => handleReturn(entry.id)}
+                      >
+                        Return Equipment
+                      </button>
+                    </div>
+                  )}
+
+                  {entry.status === "returning" && (
+                    <div className="request-note info" style={{ color: "var(--primary)" }}>
+                      <HiOutlineClock />
+                      Waiting for admin to accept return
                     </div>
                   )}
                 </div>
