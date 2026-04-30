@@ -17,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sport Gym Equipment | Borrowing System",
   description: "A borrowing and equipment management system for sports centers.",
+  icons: {
+    icon: "/app-icon.svg",
+    apple: "/app-icon.svg",
+  },
 };
 
 export default function RootLayout({

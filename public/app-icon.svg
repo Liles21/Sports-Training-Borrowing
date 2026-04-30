@@ -1,0 +1,63 @@
+<svg viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Modern Blue Gradient Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0891b2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadowFilter" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.2" result="coloredShadow"/>
+    </filter>
+    <filter id="glowFilter">
+      <feGaussianBlur stdDeviation="2" result="coloredShadow"/>
+      <feMerge>
+        <feMergeNode in="coloredShadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Rounded rectangle background with shadow -->
+  <rect x="12" y="12" width="168" height="168" rx="48" fill="url(#bgGradient)" filter="url(#shadowFilter)"/>
+  
+  <!-- Inner highlight border -->
+  <rect x="12" y="12" width="168" height="168" rx="48" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none"/>
+  
+  <!-- Dumbbell Icon Group -->
+  <g transform="translate(96, 96)">
+    <!-- Left Dumbbell Weight Plate -->
+    <rect x="-56" y="-24" width="20" height="48" rx="3" fill="#ffffff" opacity="0.95"/>
+    <rect x="-56" y="-24" width="20" height="3" rx="1" fill="rgba(3,105,161,0.15)"/>
+    
+    <!-- Left Connection Bar -->
+    <rect x="-36" y="-18" width="14" height="36" rx="2.5" fill="rgba(255,255,255,0.92)"/>
+    
+    <!-- Main Grip Handle -->
+    <g>
+      <rect x="-22" y="-22" width="44" height="44" rx="7" fill="#ffffff" opacity="0.98"/>
+      
+      <!-- Grip texture lines -->
+      <g stroke="rgba(3,105,161,0.1)" stroke-width="1.5" stroke-linecap="round">
+        <line x1="-14" y1="-14" x2="-14" y2="12"/>
+        <line x1="-2" y1="-14" x2="-2" y2="12"/>
+        <line x1="10" y1="-14" x2="10" y2="12"/>
+        <line x1="22" y1="-14" x2="22" y2="12"/>
+      </g>
+      
+      <!-- Top shine effect -->
+      <rect x="-22" y="-22" width="44" height="8" rx="7" fill="rgba(255,255,255,0.35)"/>
+    </g>
+    
+    <!-- Right Connection Bar -->
+    <rect x="22" y="-18" width="14" height="36" rx="2.5" fill="rgba(255,255,255,0.92)"/>
+    
+    <!-- Right Dumbbell Weight Plate -->
+    <rect x="36" y="-24" width="20" height="48" rx="3" fill="#ffffff" opacity="0.95"/>
+    <rect x="36" y="-24" width="20" height="3" rx="1" fill="rgba(3,105,161,0.15)"/>
+    
+    <!-- Subtle depth dots -->
+    <circle cx="-48" cy="-36" r="1.5" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="48" cy="-36" r="1.5" fill="rgba(255,255,255,0.4)"/>
+  </g>
+</svg>

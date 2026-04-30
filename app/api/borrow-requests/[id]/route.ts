@@ -9,6 +9,7 @@ import {
 import { requireAuth, requireRole } from "@/lib/server/guards";
 import { jsonError, jsonSuccess } from "@/lib/server/responses";
 import { getSupabaseServiceClient } from "@/lib/server/supabase";
+import type { Equipment } from "@/lib/types";
 
 type UpdateBody = {
   action?: "approve" | "reject" | "return" | "accept_return";
@@ -272,7 +273,7 @@ async function getAllRequests(supabase: any) {
     throw new Error(allEquipmentResponse.error.message || "Unable to load equipment.");
   }
 
-  const equipmentMap = new Map(
+  const equipmentMap = new Map<string, Equipment>(
     (allEquipmentResponse.data ?? []).map((row: any) => {
       const equipment = mapEquipmentRow(row as EquipmentRow);
       return [equipment.id, equipment] as const;
@@ -280,7 +281,7 @@ async function getAllRequests(supabase: any) {
   );
 
   return (allRequestsResponse.data ?? [])
-    .map((entry) => {
+    .map((entry: any) => {
       const requestEntry = mapBorrowRequestRow(entry as BorrowRequestRow);
       const item = equipmentMap.get(requestEntry.equipmentId);
       return {
@@ -291,5 +292,5 @@ async function getAllRequests(supabase: any) {
         overdue: isOverdue(requestEntry),
       };
     })
-    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
+    .sort((a: any, b: any) => +new Date(b.createdAt) - +new Date(a.createdAt));
 }

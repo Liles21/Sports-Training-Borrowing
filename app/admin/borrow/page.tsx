@@ -33,13 +33,19 @@ export default function AdminBorrowPage() {
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState<string | null>(null);
   const [checkingId, setCheckingId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [condition, setCondition] = useState("Good condition");
-  const [checklist, setChecklist] = useState({
+  const [checklist, setChecklist] = useState<{
+    parts: boolean;
+    damage: boolean;
+    clean: boolean;
+    functional: boolean;
+  }>({
     parts: false,
     damage: false,
+    clean: false,
     functional: false,
   });
-  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   async function load() {
     const data = await apiFetch<{ requests: BorrowRow[] }>("/api/borrow-requests");
