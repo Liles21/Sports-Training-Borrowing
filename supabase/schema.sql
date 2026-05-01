@@ -31,6 +31,13 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+-- Ensure columns exist for databases created before the schema was finalized
+alter table public.profiles 
+  add column if not exists full_name text,
+  add column if not exists role public.user_role not null default 'borrower',
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
+
 create index if not exists idx_profiles_role on public.profiles(role);
 create index if not exists idx_profiles_email on public.profiles(email);
 
@@ -50,6 +57,10 @@ create table if not exists public.equipment (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.equipment
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
 
 create index if not exists idx_equipment_category on public.equipment(category);
 
@@ -75,6 +86,10 @@ create table if not exists public.borrow_requests (
   updated_at timestamptz not null default now()
 );
 
+alter table public.borrow_requests
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
+
 create index if not exists idx_borrow_requests_equipment_id on public.borrow_requests(equipment_id);
 create index if not exists idx_borrow_requests_user_id on public.borrow_requests(user_id);
 create index if not exists idx_borrow_requests_status on public.borrow_requests(status);
@@ -94,6 +109,10 @@ create table if not exists public.notifications (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.notifications
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists updated_at timestamptz not null default now();
 
 create index if not exists idx_notifications_user_id on public.notifications(user_id);
 create index if not exists idx_notifications_read on public.notifications(read);

@@ -15,6 +15,7 @@ type EquipmentBody = {
   quantity?: number;
   image?: string;
   description?: string;
+  status?: string;
 };
 
 export async function PUT(
@@ -38,6 +39,7 @@ export async function PUT(
   const quantity = Number(body.quantity ?? 0);
   const image = (body.image ?? "").trim();
   const description = (body.description ?? "").trim();
+  const status = (body.status ?? "available").toLowerCase();
 
   if (!name || !category || !image || !description || !Number.isFinite(quantity)) {
     return jsonError("All fields are required.");
@@ -45,6 +47,10 @@ export async function PUT(
 
   if (quantity < 1) {
     return jsonError("Quantity must be at least 1.");
+  }
+
+  if (!["available", "borrowed"].includes(status)) {
+    return jsonError("Status must be 'available' or 'borrowed'.");
   }
 
   const supabase = getSupabaseServiceClient();
@@ -81,7 +87,7 @@ export async function PUT(
 
   const updateResponse = await supabase
     .from("equipment")
-    .update({ name, category, quantity, image, description })
+    .update({ name, category, quantity, image, description, status })
     .eq("id", id);
 
   if (updateResponse.error) {
@@ -161,6 +167,12 @@ export async function DELETE(
 
   if ((activeResponse.data ?? []).length > 0) {
     return jsonError("Cannot delete equipment with active borrow requests.");
+  }
+
+  // Delete all associated borrow requests first to bypass 'on delete restrict' constraint
+  const deleteRequestsResponse = await supabase.from("borrow_requests").delete().eq("equipment_id", id);
+  if (deleteRequestsResponse.error) {
+    return jsonError(deleteRequestsResponse.error.message || "Unable to delete associated borrow requests.", 500);
   }
 
   const deleteResponse = await supabase.from("equipment").delete().eq("id", id);

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { ProtectedPage } from "@/components/ProtectedPage";
 import { apiFetch } from "@/lib/client/api";
-import { HiOutlineFunnel, HiOutlinePencil, HiOutlinePlus, HiOutlineTrash, HiOutlineXMark } from "react-icons/hi2";
+import { HiOutlineFunnel, HiOutlinePencil, HiOutlinePlus, HiOutlineTrash, HiOutlineXMark, HiOutlineCheckCircle, HiOutlineExclamationCircle, HiOutlinePlusCircle } from "react-icons/hi2";
 
 type EquipmentItem = {
   id: string;
@@ -15,6 +15,7 @@ type EquipmentItem = {
   available: number;
   image: string;
   description: string;
+  status?: string;
 };
 
 type EquipmentResponse = {
@@ -26,8 +27,10 @@ const initialForm = {
   name: "",
   category: "",
   quantity: 1,
+  available: 1,
   image: "",
   description: "",
+  status: "available",
 };
 
 export default function AdminEquipmentPage() {
@@ -135,8 +138,10 @@ export default function AdminEquipmentPage() {
       name: item.name,
       category: item.category,
       quantity: item.quantity,
+      available: item.available,
       image: item.image,
       description: item.description,
+      status: item.status ?? "available",
     });
     setMessage(null);
     setError(null);
@@ -179,6 +184,40 @@ export default function AdminEquipmentPage() {
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to delete equipment.");
+    }
+  }
+
+  async function handleRestock(item: EquipmentItem) {
+    const amountStr = window.prompt(`How many ${item.name}s do you want to restock?`);
+    if (!amountStr) return;
+
+    const amount = parseInt(amountStr, 10);
+    if (isNaN(amount) || amount <= 0) {
+      window.alert("Please enter a valid positive number.");
+      return;
+    }
+
+    setError(null);
+    setMessage(null);
+
+    try {
+      const body = {
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity + amount,
+        image: item.image,
+        description: item.description,
+        status: item.status,
+      };
+
+      await apiFetch<{ equipment: EquipmentItem[] }>(`/api/equipment/${item.id}`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      });
+      setMessage(`Successfully restocked ${amount} ${item.name}(s).`);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to restock equipment.");
     }
   }
 
@@ -230,14 +269,36 @@ export default function AdminEquipmentPage() {
           <div className="equipment-grid admin-equipment-grid">
             {filtered.map((item) => (
               <article key={item.id} className="equipment-card">
-                <img src={item.image} alt={item.name} />
+                <div className="equipment-image-container">
+                  <img src={item.image} alt={item.name} />
+                  <div className="equipment-badges">
+                    <span className="badge category">{item.category}</span>
+                    {item.status === 'borrowed' || item.available < 1 ? (
+                      <span className="badge borrowed">
+                        <HiOutlineExclamationCircle /> Borrowed
+                      </span>
+                    ) : (
+                      <span className="badge available">
+                        <HiOutlineCheckCircle /> Available
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="equipment-card-body">
                   <div className="equipment-card-head">
                     <div>
                       <h4>{item.name}</h4>
-                      <span className="equipment-pill">{item.category}</span>
                     </div>
                     <div className="equipment-card-actions">
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        onClick={() => handleRestock(item)}
+                        title="Restock"
+                        aria-label={`Restock ${item.name}`}
+                      >
+                        <HiOutlinePlusCircle />
+                      </button>
                       <button
                         type="button"
                         className="icon-btn edit"
@@ -259,13 +320,15 @@ export default function AdminEquipmentPage() {
 
                   <p className="equipment-description">{item.description}</p>
 
-                  <div className="equipment-metrics">
-                    <span>
-                      Total: <strong>{item.quantity}</strong>
-                    </span>
-                    <span>
-                      Available: <strong>{item.available}</strong>
-                    </span>
+                  <div className="equipment-metrics-grid">
+                    <div className="metric-box">
+                      <span className="metric-label">Total Quantity</span>
+                      <span className="metric-value">{item.quantity}</span>
+                    </div>
+                    <div className="metric-box">
+                      <span className="metric-label">Available Qty</span>
+                      <span className="metric-value">{item.available}</span>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -305,18 +368,52 @@ export default function AdminEquipmentPage() {
                       <option value="__new__">+ Add New Category</option>
                     </select>
                   </label>
-                  <label>
-                    Quantity
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.quantity}
-                      onChange={(event) =>
-                        setForm((prev) => ({ ...prev, quantity: Number(event.target.value) }))
-                      }
-                      required
-                    />
-                  </label>
+                  <div className="form-row-2col-qty">
+                    <label>
+                      TOTAL QUANTITY
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.quantity}
+                        onChange={(event) => {
+                          const newQuantity = Number(event.target.value);
+                          setForm((prev) => {
+                            if (editingId) {
+                              const originalItem = items.find(i => i.id === editingId);
+                              if (originalItem) {
+                                const borrowed = originalItem.quantity - originalItem.available;
+                                return { ...prev, quantity: newQuantity, available: Math.max(0, newQuantity - borrowed) };
+                              }
+                            }
+                            return { ...prev, quantity: newQuantity, available: newQuantity };
+                          });
+                        }}
+                        required
+                      />
+                    </label>
+                    <label>
+                      AVAILABLE QTY
+                      <input
+                        type="number"
+                        min={0}
+                        value={form.available}
+                        onChange={(event) => {
+                          const newAvailable = Number(event.target.value);
+                          setForm((prev) => {
+                            if (editingId) {
+                              const originalItem = items.find(i => i.id === editingId);
+                              if (originalItem) {
+                                const borrowed = originalItem.quantity - originalItem.available;
+                                return { ...prev, available: newAvailable, quantity: newAvailable + borrowed };
+                              }
+                            }
+                            return { ...prev, available: newAvailable, quantity: newAvailable };
+                          });
+                        }}
+                        title="Edit available quantity to automatically update total quantity."
+                      />
+                    </label>
+                  </div>
                   <label>
                     Description
                     <textarea
@@ -336,6 +433,18 @@ export default function AdminEquipmentPage() {
                       onChange={(event) => setForm((prev) => ({ ...prev, image: event.target.value }))}
                       required
                     />
+                  </label>
+
+                  <label>
+                    Status
+                    <select
+                      value={form.status}
+                      onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
+                      required
+                    >
+                      <option value="available">Available</option>
+                      <option value="borrowed">Borrowed</option>
+                    </select>
                   </label>
 
                   <div className="button-row admin-equipment-actions">

@@ -23,6 +23,7 @@ export type Equipment = {
   image: string;
   description: string;
   createdAt: string;
+  status?: string;
 };
 
 export type BorrowRequest = {

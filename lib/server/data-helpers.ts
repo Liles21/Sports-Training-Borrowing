@@ -8,6 +8,7 @@ export type EquipmentRow = {
   image: string;
   description: string;
   created_at: string;
+  status?: string;
 };
 
 export type BorrowRequestRow = {
@@ -43,6 +44,7 @@ export function mapEquipmentRow(row: EquipmentRow): Equipment {
     image: row.image,
     description: row.description,
     createdAt: row.created_at,
+    status: row.status ?? "available",
   };
 }
 

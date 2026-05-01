@@ -88,8 +88,8 @@ export default function LoginPage() {
               <circle cx="42" cy="0" r="9" fill="#fff" />
             </g>
             <rect x="46" y="118" width="128" height="4" fill="#000" />
-            <text x="110" y="156" text-anchor="middle" fill="#000" font-size="34" font-weight="800" letter-spacing="4" font-family="Arial, Helvetica, sans-serif">FITNESS</text>
-            <text x="110" y="186" text-anchor="middle" fill="#000" font-size="20" font-weight="700" letter-spacing="6" font-family="Arial, Helvetica, sans-serif">SPORT</text>
+            <text x="110" y="156" textAnchor="middle" fill="#000" fontSize="34" fontWeight="800" letterSpacing="4" fontFamily="Arial, Helvetica, sans-serif">FITNESS</text>
+            <text x="110" y="186" textAnchor="middle" fill="#000" fontSize="20" fontWeight="700" letterSpacing="6" fontFamily="Arial, Helvetica, sans-serif">SPORT</text>
           </svg>
         </div>
 

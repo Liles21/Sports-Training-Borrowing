@@ -81,7 +81,8 @@ export default function AdminBorrowPage() {
     () => ({
       pending: rows.filter((entry) => entry.status === "pending").length,
       approved: rows.filter((entry) => entry.status === "approved").length,
-      returned: rows.filter((entry) => entry.status === "returned").length,
+      returning: rows.filter((entry) => entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK").length,
+      returned: rows.filter((entry) => entry.status === "returned" && entry.returnCondition !== "AWAITING_ADMIN_CHECK").length,
       rejected: rows.filter((entry) => entry.status === "rejected").length,
     }),
     [rows],
@@ -165,6 +166,10 @@ export default function AdminBorrowPage() {
               <h4>Approved</h4>
               <strong>{stats.approved}</strong>
             </article>
+            <article className="request-stat returning">
+              <h4>Returning</h4>
+              <strong>{stats.returning}</strong>
+            </article>
             <article className="request-stat returned">
               <h4>Returned</h4>
               <strong>{stats.returned}</strong>
@@ -188,7 +193,9 @@ export default function AdminBorrowPage() {
                       <h4>{entry.equipmentName}</h4>
                       <p className="muted">{entry.equipmentCategory || "Uncategorized"}</p>
                     </div>
-                    <span className={statusClass(entry.status)}>{entry.status}</span>
+                    <span className={statusClass(entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK" ? "returning" : entry.status)}>
+                      {entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK" ? "returning" : entry.status}
+                    </span>
                   </div>
 
                   <div className="admin-request-columns">
@@ -255,7 +262,7 @@ export default function AdminBorrowPage() {
                           {loadingId === entry.id ? "Processing..." : "Mark as Returned"}
                         </button>
                     )}
-                    {entry.status === "returning" && (
+                    {(entry.status === "returning" || (entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK")) && (
                         <button
                           type="button"
                           className="btn success"

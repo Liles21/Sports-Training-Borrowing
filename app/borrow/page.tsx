@@ -22,6 +22,7 @@ type BorrowRow = {
   createdAt?: string;
   status: "pending" | "approved" | "rejected" | "returning" | "returned";
   overdue: boolean;
+  returnCondition?: string;
 };
 
 export default function BorrowRequestsPage() {
@@ -68,8 +69,8 @@ export default function BorrowRequestsPage() {
     () => ({
       pending: rows.filter((entry) => entry.status === "pending").length,
       approved: rows.filter((entry) => entry.status === "approved").length,
-      returning: rows.filter((entry) => entry.status === "returning").length,
-      returned: rows.filter((entry) => entry.status === "returned").length,
+      returning: rows.filter((entry) => entry.status === "returning" || (entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK")).length,
+      returned: rows.filter((entry) => entry.status === "returned" && entry.returnCondition !== "AWAITING_ADMIN_CHECK").length,
       rejected: rows.filter((entry) => entry.status === "rejected").length,
     }),
     [rows],
@@ -107,6 +108,10 @@ export default function BorrowRequestsPage() {
               <h4>Approved</h4>
               <strong>{stats.approved}</strong>
             </article>
+            <article className="request-stat returning">
+              <h4>Returning</h4>
+              <strong>{stats.returning}</strong>
+            </article>
             <article className="request-stat returned">
               <h4>Returned</h4>
               <strong>{stats.returned}</strong>
@@ -129,7 +134,9 @@ export default function BorrowRequestsPage() {
                       <p className="muted">Quantity</p>
                       <strong>{entry.quantity}</strong>
                     </div>
-                    <span className={statusClass(entry.status)}>{entry.status}</span>
+                    <span className={statusClass(entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK" ? "returning" : entry.status)}>
+                      {entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK" ? "returning" : entry.status}
+                    </span>
                   </div>
 
                   <div className="request-dates">
@@ -168,7 +175,7 @@ export default function BorrowRequestsPage() {
                     </div>
                   )}
 
-                  {entry.status === "returning" && (
+                  {(entry.status === "returning" || (entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK")) && (
                     <div className="request-note info" style={{ color: "var(--primary)" }}>
                       <HiOutlineClock />
                       Waiting for admin to accept return

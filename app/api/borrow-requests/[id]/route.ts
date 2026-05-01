@@ -158,7 +158,7 @@ export async function PATCH(
       return jsonError(notifyResponse.error.message || "Unable to create notification.", 500);
     }
   } else if (action === "return") {
-    if (target.status === "returning" || target.status === "returned") {
+    if (target.status === "returned" && target.returnCondition !== "AWAITING_ADMIN_CHECK") {
       return jsonSuccess({ requests: await getAllRequests(supabase) });
     }
     if (target.status !== "approved") {
@@ -167,20 +167,22 @@ export async function PATCH(
 
     const updateResponse = await supabase
       .from("borrow_requests")
-      .update({ status: "returning" })
+      .update({ 
+        status: "returned", 
+        return_condition: "AWAITING_ADMIN_CHECK",
+        returned_at: new Date().toISOString() 
+      })
       .eq("id", id);
 
     if (updateResponse.error) {
       return jsonError(updateResponse.error.message || "Unable to update borrow request.", 500);
     }
-
-    // Notify admin? (Optional, but let's just confirm for user)
   } else if (action === "accept_return") {
-    if (target.status === "returned") {
+    if (target.status === "returned" && target.returnCondition !== "AWAITING_ADMIN_CHECK") {
       return jsonSuccess({ requests: await getAllRequests(supabase) });
     }
-    if (target.status !== "returning") {
-      return jsonError(`Cannot accept return for a request that is currently ${target.status}.`);
+    if (target.status !== "returned" || target.returnCondition !== "AWAITING_ADMIN_CHECK") {
+      return jsonError("This request is not awaiting return acceptance.");
     }
 
     const updateResponse = await supabase

@@ -9,6 +9,8 @@ import {
   HiOutlineShoppingCart,
   HiOutlineXCircle,
   HiOutlineXMark,
+  HiOutlineCheckCircle,
+  HiOutlineExclamationCircle,
 } from "react-icons/hi2";
 
 type EquipmentItem = {
@@ -19,6 +21,7 @@ type EquipmentItem = {
   available: number;
   image: string;
   description: string;
+  status?: string;
 };
 
 type EquipmentResponse = {
@@ -141,16 +144,33 @@ export default function BorrowerEquipmentPage() {
           <div className="equipment-grid">
             {filtered.map((item) => (
               <article key={item.id} className="equipment-card">
-                <img src={item.image} alt={item.name} />
+                <div className="equipment-image-container">
+                  <img src={item.image} alt={item.name} />
+                  <div className="equipment-badges">
+                    <span className="badge category">{item.category}</span>
+                    {item.status === 'borrowed' || item.available < 1 ? (
+                      <span className="badge borrowed">
+                        <HiOutlineExclamationCircle /> Borrowed
+                      </span>
+                    ) : (
+                      <span className="badge available">
+                        <HiOutlineCheckCircle /> Available
+                      </span>
+                    )}
+                  </div>
+                </div>
                   <div className="equipment-copy">
                     <h4>{item.name}</h4>
-                    <span className="badge-category">{item.category}</span>
                     <p>{item.description}</p>
-                    <div className="availability availability-pill">
-                      <span>Available:</span>
-                      <strong>
-                        {item.available} / {item.quantity}
-                      </strong>
+                    <div className="equipment-metrics-grid">
+                      <div className="metric-box">
+                        <span className="metric-label">Total Quantity</span>
+                        <span className="metric-value">{item.quantity}</span>
+                      </div>
+                      <div className="metric-box">
+                        <span className="metric-label">Available Qty</span>
+                        <span className="metric-value">{item.available}</span>
+                      </div>
                     </div>
                   </div>
                 <button
