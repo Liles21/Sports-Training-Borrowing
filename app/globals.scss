@@ -262,10 +262,10 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 16px;
 }
 
-h1 { font-size: 2rem; color: var(--ink); font-weight: 600; }
-h2 { font-size: 1.6rem; color: var(--ink); font-weight: 600; }
-h3 { font-size: 1.35rem; color: var(--ink); font-weight: 600; }
-h4 { font-size: 1.1rem; color: var(--ink); font-weight: 500; }
+h1 { font-size: 1.75rem; color: var(--ink); font-weight: 600; }
+h2 { font-size: 1.45rem; color: var(--ink); font-weight: 600; }
+h3 { font-size: 1.2rem; color: var(--ink); font-weight: 600; }
+h4 { font-size: 1rem; color: var(--ink); font-weight: 500; }
 
 p {
   margin-bottom: 12px;
@@ -394,7 +394,7 @@ p {
 
 .auth-card h1 {
   margin-bottom: 6px;
-  font-size: 2rem;
+  font-size: 1.75rem;
   line-height: 1.1;
   letter-spacing: -0.03em;
   font-weight: 600;
@@ -2103,7 +2103,7 @@ p {
 
   strong {
     margin-top: 2px;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }
 
@@ -2155,7 +2155,7 @@ p {
   }
 
   .request-title-row h4 {
-    font-size: 1.75rem;
+    font-size: 1.15rem;
   }
 }
 
@@ -2169,7 +2169,7 @@ p {
   }
 
   strong {
-    font-size: 1.25rem;
+    font-size: 1rem;
     line-height: 1.2;
     word-break: break-word;
   }
@@ -2205,7 +2205,7 @@ p {
 
   h1 {
     margin: 0;
-    font-size: min(2.35rem, 8vw);
+    font-size: min(1.9rem, 6vw);
   }
 }
 
@@ -2229,7 +2229,7 @@ p {
 
   h4 {
     margin-bottom: 12px;
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: #334155;
     opacity: 0.96;
     font-weight: 600;
@@ -2238,7 +2238,7 @@ p {
   }
 
   strong {
-    font-size: 2.5rem;
+    font-size: 2rem;
     line-height: 1;
     font-weight: 600;
   }
@@ -2311,7 +2311,7 @@ p {
   h3 {
     margin-top: 0;
     margin-bottom: 20px;
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 600;
   }
 
@@ -2355,7 +2355,7 @@ p {
 
 .admin-borrowed-rank {
   color: #94a3b8;
-  font-size: 1.7rem;
+  font-size: 1.15rem;
   font-weight: 500;
   width: 56px;
 }
@@ -2366,7 +2366,7 @@ p {
 
   h4 {
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1rem;
   }
 
   p {
@@ -2381,12 +2381,12 @@ p {
   color: #2563eb;
 
   strong {
-    font-size: 2.2rem;
+    font-size: 1.7rem;
     line-height: 1;
   }
 
   span {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: #64748b;
   }
 }
@@ -2408,12 +2408,12 @@ p {
 
   h4 {
     margin: 0 0 8px;
-    font-size: 1.4rem;
+    font-size: 1rem;
   }
 
   p {
     margin: 0 0 8px;
-    font-size: 1.05rem;
+    font-size: 0.9rem;
   }
 
   span {
