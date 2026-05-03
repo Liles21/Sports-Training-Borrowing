@@ -91,20 +91,21 @@ export default function BorrowerHistoryPage() {
                           <h4>{entry.equipment}</h4>
                           <p className="muted">Quantity: {entry.quantity}</p>
                         </div>
-                        <span className={statusClass(entry.status)}>{entry.status}</span>
+                          <div className="history-row-actions">
+                            <span className={statusClass(entry.status)}>{entry.status}</span>
+                            { ["returned", "rejected", "pending"].includes(entry.status) && (
+                              <button
+                                type="button"
+                                className="icon-btn danger history-delete-btn"
+                                onClick={() => handleDelete(entry.id)}
+                                title="Remove from history"
+                                aria-label="Remove from history"
+                              >
+                                <HiOutlineTrash />
+                              </button>
+                            ) }
+                          </div>
                       </div>
-
-                      {["returned", "rejected", "pending"].includes(entry.status) && (
-                        <button
-                          type="button"
-                          className="icon-btn danger"
-                          onClick={() => handleDelete(entry.id)}
-                          style={{ position: "absolute", top: "16px", right: "16px" }}
-                          title="Remove from history"
-                        >
-                          <HiOutlineTrash />
-                        </button>
-                      )}
 
                       <div className="history-row-dates">
                         <p>

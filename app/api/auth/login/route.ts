@@ -24,7 +24,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const authUser = data.user;
   if (error || !authUser) {
-    return jsonError("Invalid credentials.", 401);
+    const message =
+      error?.message && error.message.trim().length > 0
+        ? error.message
+        : "Invalid credentials.";
+
+    return jsonError(message, 401);
   }
 
   const supabaseAdmin = getSupabaseServiceClient();

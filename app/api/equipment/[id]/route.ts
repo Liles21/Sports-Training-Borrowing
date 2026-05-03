@@ -15,7 +15,6 @@ type EquipmentBody = {
   quantity?: number;
   image?: string;
   description?: string;
-  status?: string;
 };
 
 export async function PUT(
@@ -39,7 +38,6 @@ export async function PUT(
   const quantity = Number(body.quantity ?? 0);
   const image = (body.image ?? "").trim();
   const description = (body.description ?? "").trim();
-  const status = (body.status ?? "available").toLowerCase();
 
   if (!name || !category || !image || !description || !Number.isFinite(quantity)) {
     return jsonError("All fields are required.");
@@ -49,20 +47,9 @@ export async function PUT(
     return jsonError("Quantity must be at least 1.");
   }
 
-  if (!["available", "borrowed"].includes(status)) {
-    return jsonError("Status must be 'available' or 'borrowed'.");
-  }
-
   const supabase = getSupabaseServiceClient();
 
-  const [equipmentResponse, approvedResponse] = await Promise.all([
-    supabase.from("equipment").select("*").eq("id", id).maybeSingle(),
-    supabase
-      .from("borrow_requests")
-      .select("quantity")
-      .eq("equipment_id", id)
-      .eq("status", "approved"),
-  ]);
+  const equipmentResponse = await supabase.from("equipment").select("*").eq("id", id).maybeSingle();
 
   if (equipmentResponse.error) {
     return jsonError(equipmentResponse.error.message || "Unable to load equipment.", 500);
@@ -72,22 +59,9 @@ export async function PUT(
     return jsonError("Equipment not found.", 404);
   }
 
-  if (approvedResponse.error) {
-    return jsonError(approvedResponse.error.message || "Unable to validate quantity.", 500);
-  }
-
-  const currentlyBorrowed = (approvedResponse.data ?? []).reduce(
-    (sum, req) => sum + Number(req.quantity ?? 0),
-    0,
-  );
-
-  if (quantity < currentlyBorrowed) {
-    return jsonError("Quantity cannot be less than currently approved borrows.");
-  }
-
   const updateResponse = await supabase
     .from("equipment")
-    .update({ name, category, quantity, image, description, status })
+    .update({ name, category, quantity, image, description })
     .eq("id", id);
 
   if (updateResponse.error) {

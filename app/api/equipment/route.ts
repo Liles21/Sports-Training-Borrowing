@@ -15,7 +15,6 @@ type EquipmentBody = {
   quantity?: number;
   image?: string;
   description?: string;
-  status?: string;
 };
 
 export async function GET(request: Request): Promise<Response> {
@@ -76,7 +75,6 @@ export async function POST(request: Request): Promise<Response> {
   const quantity = Number(body.quantity ?? 0);
   const image = (body.image ?? "").trim();
   const description = (body.description ?? "").trim();
-  const status = (body.status ?? "available").toLowerCase();
 
   if (!name || !category || !image || !description || !Number.isFinite(quantity)) {
     return jsonError("All fields are required.");
@@ -86,10 +84,6 @@ export async function POST(request: Request): Promise<Response> {
     return jsonError("Quantity must be at least 1.");
   }
 
-  if (!["available", "borrowed"].includes(status)) {
-    return jsonError("Status must be 'available' or 'borrowed'.");
-  }
-
   const supabase = getSupabaseServiceClient();
   const insertResponse = await supabase.from("equipment").insert({
     name,
@@ -97,7 +91,6 @@ export async function POST(request: Request): Promise<Response> {
     quantity,
     image,
     description,
-    status,
   });
 
   if (insertResponse.error) {

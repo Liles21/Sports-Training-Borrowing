@@ -21,11 +21,29 @@ export async function apiFetch<T>(
     credentials: "include",
   });
 
-  const payload = (await response.json()) as ApiSuccess<T> | ApiError;
+  // Guard against non-JSON or empty responses which would throw on response.json()
+  const contentType = response.headers.get("content-type") || "";
 
-  if (!response.ok || !payload.success) {
+  let payload: ApiSuccess<T> | ApiError | null = null;
+
+  if (contentType.includes("application/json")) {
+    try {
+      payload = (await response.json()) as ApiSuccess<T> | ApiError;
+    } catch (err) {
+      // invalid JSON body
+      throw new Error(`Invalid JSON response: ${String(err)}`);
+    }
+  } else {
+    // Non-JSON response (could be HTML error page or empty). Read text for diagnostics.
+    const text = await response.text();
     throw new Error(
-      "message" in payload ? payload.message : "Something went wrong.",
+      text ? `Unexpected response: ${text}` : `Unexpected response with status ${response.status}`,
+    );
+  }
+
+  if (!response.ok || !payload?.success) {
+    throw new Error(
+      payload && "message" in payload ? payload.message : "Something went wrong.",
     );
   }
 
