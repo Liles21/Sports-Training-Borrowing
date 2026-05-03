@@ -1525,8 +1525,16 @@ p {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      gap: 10px;
       pointer-events: none;
       z-index: 2;
+
+      .badge.category {
+        max-width: 55%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       .badge {
         display: inline-flex;
@@ -1622,6 +1630,47 @@ p {
       font-size: 1rem;
       font-weight: 500;
       color: var(--ink);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .equipment-image-container {
+      .equipment-badges {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .badge.category {
+          max-width: 100%;
+        }
+      }
+    }
+
+    .equipment-card-body {
+      gap: 12px;
+      padding: 18px;
+    }
+
+    .equipment-card-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+
+      h4 {
+        font-size: 1.05rem;
+      }
+    }
+
+    .equipment-copy {
+      padding: 18px 18px 0;
+    }
+
+    .equipment-metrics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .btn.primary {
+      margin: 0 18px 18px;
+      width: calc(100% - 36px);
     }
   }
 }
