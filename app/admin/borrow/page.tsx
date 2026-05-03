@@ -251,17 +251,7 @@ export default function AdminBorrowPage() {
                         </button>
                       </>
                     )}
-                    {entry.status === "approved" && (
-                        <button
-                          type="button"
-                          className="btn primary"
-                          onClick={() => patchStatus(entry.id, "return")}
-                          disabled={loadingId === entry.id}
-                        >
-                          <HiOutlineArrowPath />
-                          {loadingId === entry.id ? "Processing..." : "Mark as Returned"}
-                        </button>
-                    )}
+                    {/* 'Mark as Returned' button removed */}
                     {(entry.status === "returning" || (entry.status === "returned" && entry.returnCondition === "AWAITING_ADMIN_CHECK")) && (
                         <button
                           type="button"
